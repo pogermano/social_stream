@@ -28,7 +28,8 @@ class Relation::Custom < Relation
       cfg_rels = config[actor.subject_type.underscore]
 
       if cfg_rels.nil?
-        raise "Undefined relations for subject type #{ actor.subject_type }. Please, add an entry to #{ CONFIG }"
+        logger.warn "Undefined relations for subject type #{ actor.subject_type }. Please, add an entry to #{ CONFIG }"
+        return
       end
 
       rels = {}

@@ -23,7 +23,9 @@ class Activity < ActiveRecord::Base
 
   belongs_to :activity_verb
 
-  has_many :audiences, :dependent => :destroy
+  has_many :audiences,
+           :dependent => :destroy,
+           :before_add => :set_direct_activity_object
   has_many :relations, :through => :audiences
 
   has_many :activity_object_activities,
@@ -413,5 +415,19 @@ class Activity < ActiveRecord::Base
     Notification.with_object(self).each do |notification|
       notification.destroy
     end
+  end
+
+  # before_add callback
+  #
+  # This is called when the {Activity} is assigned to new {Relation relations},
+  # so new {Audience audiences} are created.
+  #
+  # Unfortunately, the activity associated with the new audience is not
+  # the same object than this activity, and this has not the direct_activity_object,
+  # so we have to set it here
+  def set_direct_activity_object(audience)
+    return if direct_activity_object.blank?
+
+    audience.direct_activity_object = direct_activity_object
   end
 end
